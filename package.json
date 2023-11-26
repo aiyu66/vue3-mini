@@ -1,0 +1,19 @@
+{
+  "name": "vue3-mini",
+  "version": "1.0.0",
+  "description": "实现一个mini版的Vue3。目的是为了深刻理解Vue3的运行原理。",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "vitest run"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "typescript": "^5.3.2",
+    "vitest": "^0.34.6"
+  }
+}
