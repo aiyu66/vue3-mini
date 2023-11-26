@@ -17,4 +17,21 @@ describe("effect", () => {
     data.count++
     expect(doubleCount).toBe(4)
   })
+
+  it("should return a runner fucntion when effect called", () => {
+    // effect(fn) -> runner -> 调用runner() -> fn()
+    let count = 0
+
+    const runner = effect(() => {
+      count++
+      return "foo"
+    })
+
+    expect(count).toBe(1)
+
+    // 调用runner时重新执行fn并返回fn函数的返回值
+    const ret = runner()
+    expect(count).toBe(2)
+    expect(ret).toBe("foo")
+  })
 })

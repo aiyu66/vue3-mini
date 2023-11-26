@@ -10,22 +10,22 @@ class ReactiveEffect {
   run() {
     activeEffect = this
 
-    // 执行副作用函数的fn
-    this._fn()
+    // 执行副作用函数的fn, 并把结果返回
+    return this._fn()
   }
 }
 
 /**
  * 副作用函数, 用于注册fn
  * @param fn 与响应式数据关联的函数
- * @returns ReactiveEffect实例对象
+ * @returns 一个runner函数, 也就是run()方法
  */
 export function effect(fn: () => void) {
   const _effect = new ReactiveEffect(fn)
 
   _effect.run()
-
-  return _effect
+  // 绑定 _effect 是因为run()方法中需要this
+  return _effect.run.bind(_effect)
 }
 
 // 以响应式对象作为key, Map为value的WeakMap对象
