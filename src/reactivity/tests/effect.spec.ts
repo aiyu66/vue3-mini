@@ -1,5 +1,5 @@
 import { it, expect, describe, vi } from "vitest"
-import { reactive, effect } from ".."
+import { reactive, effect, stop } from ".."
 
 describe("effect", () => {
   it("happy path", () => {
@@ -67,5 +67,48 @@ describe("effect", () => {
     // 手动执行runner, 会调用fn
     run()
     expect(dummy).toBe(2)
+  })
+
+  it("shouldn't update reactive when stop called", () => {
+    const data = reactive({ count: 1 })
+    let dummy = 0
+    const runner = effect(() => {
+      dummy = data.count
+    })
+
+    expect(dummy).toBe(1)
+
+    // 暂停触发依赖更新
+    stop(runner)
+
+    // 更新响应式对象的值
+    data.count = 2
+    // 不会触发更新, 也就是不能执行 activeEffect的run/scheduler 方法
+    expect(dummy).toBe(1)
+
+    // 手动恢复
+    runner()
+    expect(dummy).toBe(2)
+
+    data.count = 3
+    expect(dummy).toBe(3)
+  })
+
+  it("should call onStop when stop called", () => {
+    const data = reactive({ count: 1 })
+    let dummy = 0
+
+    const onStop = vi.fn()
+
+    const runner = effect(
+      () => {
+        dummy = data.count
+      },
+      { onStop }
+    )
+
+    stop(runner)
+
+    expect(onStop).toBeCalledTimes(1)
   })
 })
