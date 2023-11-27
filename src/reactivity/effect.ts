@@ -2,9 +2,12 @@ let activeEffect: ReactiveEffect | undefined
 
 // 响应式对象的核心
 class ReactiveEffect {
-  private _fn: Function
+  private _fn: () => any
 
-  constructor(fn: Function) {
+  constructor(
+    fn: () => any,
+    public scheduler?: (...args: any[]) => any | null
+  ) {
     this._fn = fn
   }
   run() {
@@ -20,8 +23,8 @@ class ReactiveEffect {
  * @param fn 与响应式数据关联的函数
  * @returns 一个runner函数, 也就是run()方法
  */
-export function effect(fn: () => void) {
-  const _effect = new ReactiveEffect(fn)
+export function effect(fn: () => void, options?: any) {
+  const _effect = new ReactiveEffect(fn, options?.scheduler)
 
   _effect.run()
   // 绑定 _effect 是因为run()方法中需要this
@@ -67,6 +70,10 @@ export function trigger(target: object, key: any) {
   const dep = depsMap.get(key)
 
   for (const effect of dep) {
-    effect.run()
+    if (effect.scheduler) {
+      effect.scheduler()
+    } else {
+      effect.run()
+    }
   }
 }

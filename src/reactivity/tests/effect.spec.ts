@@ -1,4 +1,4 @@
-import { it, expect, describe } from "vitest"
+import { it, expect, describe, vi } from "vitest"
 import { reactive, effect } from ".."
 
 describe("effect", () => {
@@ -33,5 +33,39 @@ describe("effect", () => {
     const ret = runner()
     expect(count).toBe(2)
     expect(ret).toBe("foo")
+  })
+
+  it("should call scheduler when reacitve update", () => {
+    // 1.effect()可接收一个scheduler函数类型的参数
+    // 2.初次执行effect时, 只会调用 fn, 而不会执行scheduler
+    // 3.当响应式对象发生更新时, 会调用scheduler
+    const data = reactive({ count: 1 })
+    let dummy = 0
+
+    let run = null
+    const scheduler = vi.fn(() => {
+      run = runner
+    })
+
+    const runner = effect(
+      () => {
+        dummy = data.count
+      },
+      { scheduler }
+    )
+
+    expect(dummy).toBe(1)
+    // scheduler未被调用
+    expect(scheduler).not.toBeCalled()
+
+    // 更新响应式对象
+    data.count++
+
+    // 当响应式对象发生更新时, 应该调用 scheduler
+    expect(scheduler).toBeCalledTimes(1)
+
+    // 手动执行runner, 会调用fn
+    run()
+    expect(dummy).toBe(2)
   })
 })
