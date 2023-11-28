@@ -1,15 +1,10 @@
 import { track, trigger } from "./effect"
+import { ReactiveFlags } from "./reactive"
 
 // 顶层中创建 get/set, 具有缓存作用, 不会被多次创建
 const get = createGetter()
 const set = createSetter()
 const readonlyGet = createGetter(true)
-
-// 响应式对象的判断标记
-export const enum ReactiveFlags {
-  IS_REACTIVE = "__v_isReactive",
-  IS_READONLY = "__v_isReadonly"
-}
 
 /**
  * 创建一个getter函数, 通过isReadonly标记是否需要收集依赖

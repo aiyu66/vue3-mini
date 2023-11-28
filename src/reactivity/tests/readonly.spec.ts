@@ -21,11 +21,19 @@ describe("readonly", () => {
     expect(console.warn).toBeCalled()
   })
 
-  it.only("should be true when value is readonly", () => {
+  it("should be true when value is readonly", () => {
     const target = { count: 1 }
     const readonlyData = readonly(target)
 
     expect(isReadonly(target)).toBe(false)
     expect(isReadonly(readonlyData)).toBe(true)
+  })
+
+  it("should get same proxy when readonly same target", () => {
+    const target = { count: 1 }
+    const proxy1 = readonly(target)
+    const proxy2 = readonly(target)
+
+    expect(proxy1).toBe(proxy2)
   })
 })

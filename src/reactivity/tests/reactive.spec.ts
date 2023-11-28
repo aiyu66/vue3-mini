@@ -23,4 +23,12 @@ describe("reactive", () => {
     expect(isReactive(observed)).toBe(true)
     expect(isReactive(original)).toBe(false)
   })
+
+  it("should get same proxy when reactive same target", () => {
+    const target = {}
+    const proxy1 = reactive(target)
+    const proxy2 = reactive(target)
+
+    expect(proxy1).toBe(proxy2)
+  })
 })
