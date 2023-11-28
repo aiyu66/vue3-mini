@@ -5,6 +5,12 @@ const get = createGetter()
 const set = createSetter()
 const readonlyGet = createGetter(true)
 
+// 响应式对象的判断标记
+export const enum ReactiveFlags {
+  IS_REACTIVE = "__v_isReactive",
+  IS_READONLY = "__v_isReadonly"
+}
+
 /**
  * 创建一个getter函数, 通过isReadonly标记是否需要收集依赖
  * @param isReadonly 是否是只读的响应式对象, 默认为false, 也就是可以被set
@@ -12,6 +18,12 @@ const readonlyGet = createGetter(true)
  */
 function createGetter(isReadonly: boolean = false) {
   return function (target: object, key: string | symbol) {
+    if (key === ReactiveFlags.IS_REACTIVE) {
+      return !isReadonly
+    } else if (key === ReactiveFlags.IS_READONLY) {
+      return isReadonly
+    }
+
     const value = Reflect.get(target, key)
 
     if (!isReadonly) {
