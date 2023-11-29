@@ -41,7 +41,7 @@ class ReactiveEffect {
     activeEffect = this
     shouldTrack = true
 
-    // 执行副作用函数的fn, 并把结果返回
+    // 执行副作用函数fn
     const ret = this._fn()
 
     // reset
@@ -78,8 +78,8 @@ function cleanupEffect(effect: ReactiveEffect) {
 }
 
 /**
- * 副作用函数, 用于注册fn
- * @param fn 与响应式数据关联的函数
+ * 用于注册副作用函数fn
+ * @param fn 副作用函数
  * @returns 一个runner函数, 也就是run()方法
  */
 export function effect(
