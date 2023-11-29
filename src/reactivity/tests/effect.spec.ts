@@ -82,16 +82,21 @@ describe("effect", () => {
     stop(runner)
 
     // 更新响应式对象的值
-    data.count = 2
+    // data.count = 2
+
+    // data.count++分为两步操作: data.count = data.count + 1
+    // 也就是先取值, 然后再更新
+    data.count++
     // 不会触发更新, 也就是不能执行 activeEffect的run/scheduler 方法
     expect(dummy).toBe(1)
 
-    // 手动恢复
+    // 调用runner() 只会执行fn, 不会重新收集依赖
     runner()
     expect(dummy).toBe(2)
 
+    // 一旦stop了effect, 将不可恢复
     data.count = 3
-    expect(dummy).toBe(3)
+    expect(dummy).toBe(2)
   })
 
   it("should call onStop when stop called", () => {

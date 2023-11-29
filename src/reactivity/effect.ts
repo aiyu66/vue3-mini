@@ -11,6 +11,8 @@ interface ReactiveEffectOptions {
 }
 
 let activeEffect: ReactiveEffect | undefined
+// 用于判断activeEffect是否是活跃状态, 依此来确定是否需要收集activeEffect
+let shouldTrack: boolean
 
 // 响应式对象的核心
 class ReactiveEffect {
@@ -30,10 +32,22 @@ class ReactiveEffect {
   }
 
   run() {
+    // 如果activeEffect不是活跃状态的, 那么不需要收集依赖
+    if (!this.isActive) {
+      return this._fn()
+    }
+
+    // 设置状态
     activeEffect = this
+    shouldTrack = true
 
     // 执行副作用函数的fn, 并把结果返回
-    return this._fn()
+    const ret = this._fn()
+
+    // reset
+    shouldTrack = false
+
+    return ret
   }
 
   stop() {
@@ -92,12 +106,22 @@ export function effect(
 const targetMap = new WeakMap()
 
 /**
+ * 用于判断是否是处于收集依赖中
+ */
+function isTracking(): boolean {
+  return shouldTrack && activeEffect !== undefined
+}
+
+/**
  * 当读取响应式对象的属性时, 需要把effect作为依赖收集起来
  * @param target 响应式对象
  * @param key 响应式对象的属性
  */
 export function track(target: object, key: any) {
   // 依赖结构: target -> key -> dep(activeEffect)
+
+  // 不需要收集
+  if (!isTracking()) return
 
   // 与target关联的Map对象
   let depsMap = targetMap.get(target)
@@ -113,13 +137,13 @@ export function track(target: object, key: any) {
     depsMap.set(key, dep)
   }
 
-  // 如果activeEffect不存在, 说明不需要收集依赖
-  if (!activeEffect) return
-
-  // 保存activeEffect
-  dep.add(activeEffect)
-  // 把dep添加到activeEffect的deps中, 方便清除
-  activeEffect.deps.push(dep)
+  // dep中没有activeEffect才需要收集起来
+  if (!dep.has(activeEffect)) {
+    // 保存activeEffect
+    dep.add(activeEffect)
+    // 把dep添加到activeEffect的deps中, 方便清除
+    activeEffect.deps.push(dep)
+  }
 }
 
 /**
