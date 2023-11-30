@@ -36,4 +36,20 @@ describe("readonly", () => {
 
     expect(proxy1).toBe(proxy2)
   })
+
+  it('nested readonly', () => {
+      const target = {
+        foo: 1,
+        bar: {
+          baz: [{ count: 2 }]
+        }
+      }
+
+      const data = readonly(target)
+
+      expect(isReadonly(data)).toBe(true)
+      expect(isReadonly(data.bar)).toBe(true)
+      expect(isReadonly(data.bar.baz)).toBe(true)
+      expect(isReadonly(data.bar.baz[0])).toBe(true)
+  })
 })

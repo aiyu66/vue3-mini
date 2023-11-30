@@ -31,4 +31,20 @@ describe("reactive", () => {
 
     expect(proxy1).toBe(proxy2)
   })
+
+  it("nested reactive", () => {
+    const target = {
+      foo: 1,
+      bar: {
+        baz: [{ count: 2 }]
+      }
+    }
+
+    const data = reactive(target)
+
+    expect(isReactive(data)).toBe(true)
+    expect(isReactive(data.bar)).toBe(true)
+    expect(isReactive(data.bar.baz)).toBe(true)
+    expect(isReactive(data.bar.baz[0])).toBe(true)
+  })
 })
