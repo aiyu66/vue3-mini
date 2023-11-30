@@ -1,21 +1,32 @@
-import { mutableHandlers, readonlyHandlers } from "./baseHandlers"
+import {
+  mutableHandlers,
+  readonlyHandlers,
+  shallowReadonlyHandlers,
+  shallowReactiveHandlers
+} from "./baseHandlers"
 
 // 响应式对象的判断标记
 export const enum ReactiveFlags {
   IS_REACTIVE = "__v_isReactive",
-  IS_READONLY = "__v_isReadonly"
+  IS_READONLY = "__v_isReadonly",
+  IS_SHALLOW = "__v_isShallow"
 }
 
 // 原始对象Target的结构
 interface Target {
   [ReactiveFlags.IS_REACTIVE]?: boolean
   [ReactiveFlags.IS_READONLY]?: boolean
+  [ReactiveFlags.IS_SHALLOW]?: boolean
 }
 
 // 缓存reactive()创建的proxy对象
 const reactiveProxyMap = new WeakMap<Target, any>()
 // 缓存readonly()创建的proxy对象
 const readonlyProxyMap = new WeakMap<Target, any>()
+// 缓存 shallowReadonly 创建的 proxy 对象
+const shallowReadonlyProxyMap = new WeakMap<Target, any>()
+// 缓存 shallowReactive 创建的 proxy 对象
+const shallowReactiveProxyMap = new WeakMap<Target, any>()
 
 /**
  * 基于原始对象创建一个响应式的代理对象并返回
@@ -33,6 +44,27 @@ export function reactive(raw: object): any {
  */
 export function readonly(raw: object): any {
   return createReactiveObject(raw, readonlyHandlers, readonlyProxyMap)
+}
+
+export function shallowReactive(raw: object): any {
+  return createReactiveObject(
+    raw,
+    shallowReactiveHandlers,
+    shallowReactiveProxyMap
+  )
+}
+
+/**
+ * 基于原始对象创建一个浅层的readonly响应式对象
+ * @param raw 原始对象
+ * @returns 返回一个浅层的readonly响应式对象
+ */
+export function shallowReadonly(raw: object): any {
+  return createReactiveObject(
+    raw,
+    shallowReadonlyHandlers,
+    shallowReadonlyProxyMap
+  )
 }
 
 /**
@@ -74,4 +106,13 @@ export function isReactive(value: unknown): boolean {
  */
 export function isReadonly(value: unknown): boolean {
   return !!(value && (value as Target)[ReactiveFlags.IS_READONLY])
+}
+
+/**
+ * 判断value是否是浅层的响应式对象
+ * @param value 对象
+ * @returns true|false, true表示value是一个浅层的响应式对象
+ */
+export function isShallow(value: unknown): boolean {
+  return !!(value && (value as Target)[ReactiveFlags.IS_SHALLOW])
 }
