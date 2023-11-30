@@ -17,7 +17,7 @@ let shouldTrack: boolean
 // 响应式对象的核心
 class ReactiveEffect {
   private _fn: () => any
-  // 反向记录activeEffect集合, stop时可以找到关联的activeEffect集合
+  // 反向记录activeEffect集合, 清除依赖时可以找到key关联依赖集合
   public deps: any[] = []
   // 标记activeEffect是否处于活跃状态
   public isActive: boolean = true
@@ -37,6 +37,8 @@ class ReactiveEffect {
       return this._fn()
     }
 
+    // 每次执行fn之前都把依赖集合清空, 这样可以保证没有遗留的fn
+    cleanupEffect(this)
     // 设置状态
     activeEffect = this
     shouldTrack = true
@@ -155,7 +157,10 @@ export function trigger(target: object, key: any) {
   const depsMap = targetMap.get(target)
   const dep = depsMap.get(key)
 
-  for (const effect of dep) {
+  // 复制一个新的deps, 这样可以避免在run()中调用cleanupEffect时陷入死循环
+  // 因为 添加/删除 在同一次迭代中
+  const newDeps: any = new Set(dep)
+  for (const effect of newDeps) {
     if (effect.scheduler) {
       effect.scheduler()
     } else {

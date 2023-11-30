@@ -116,4 +116,30 @@ describe("effect", () => {
 
     expect(onStop).toBeCalledTimes(1)
   })
+
+  it("shouldn't trigger update when reactive data branch is false", () => {
+    const target = { isOk: true, text: "ok" }
+    const data = reactive(target)
+
+    let dummy
+    const effectFn = vi.fn(() => {
+      dummy = data.isOk ? data.text : "not"
+    })
+
+    effect(effectFn)
+
+    expect(dummy).toBe("ok")
+
+    // 更新 isOk 为false
+    data.isOk = false
+
+    expect(dummy).toBe("not")
+    expect(effectFn).toBeCalledTimes(2)
+
+    // 更新 text 为1, 因为 isOk为false, 那么dummy的值不应该发生变化
+    // 而且 text 对应的依赖不应该被执行
+    data.text = 1
+    expect(dummy).toBe("not")
+    expect(effectFn).toBeCalledTimes(2)
+  })
 })
