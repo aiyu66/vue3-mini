@@ -1,4 +1,4 @@
-import { effect, ReactiveEffectRunner } from "./effect"
+import { ReactiveEffect } from "./effect"
 
 type FunctionStruct = (...args: any[]) => any
 
@@ -8,23 +8,20 @@ class ComputedRefImpl {
   // 计算属性的值
   private _value: unknown
 
-  // effect的返回值, 用于执行ReativeEffect的run()方法
-  private _runner: ReactiveEffectRunner
+  // ReativeEffect的实例
+  private _effect: ReactiveEffect
 
   constructor(getter: FunctionStruct) {
-    this._runner = effect(getter, {
-      scheduler: () => {
-        if (!this._dirty) {
-          this._dirty = true
-        }
-      },
-      lazy: true
+    this._effect = new ReactiveEffect(getter, () => {
+      if (!this._dirty) {
+        this._dirty = true
+      }
     })
   }
 
   get value() {
     if (this._dirty) {
-      this._value = this._runner()
+      this._value = this._effect.run()
       this._dirty = false
     }
     return this._value

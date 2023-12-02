@@ -19,7 +19,7 @@ const effectStack: ReactiveEffect[] = []
 let shouldTrack: boolean
 
 // 响应式对象的核心
-class ReactiveEffect {
+export class ReactiveEffect {
   private _fn: () => any
   // 反向记录activeEffect集合, 清除依赖时可以找到key关联依赖集合
   public deps: any[] = []
@@ -27,11 +27,11 @@ class ReactiveEffect {
   public isActive: boolean = true
 
   // scheduler函数
-  public scheduler?: () => any | null = null
+  // public scheduler?: () => any | null = null
   // onStop回调函数
   public onStop?: () => any | null = null
 
-  constructor(fn: () => any) {
+  constructor(fn: () => any, public scheduler: () => any | null = null) {
     this._fn = fn
   }
 
