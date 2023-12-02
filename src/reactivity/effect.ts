@@ -8,6 +8,7 @@ interface ReactiveEffectRunner {
 interface ReactiveEffectOptions {
   scheduler?: () => any | null
   onStop?: () => any | null
+  lazy?: boolean
 }
 
 let activeEffect: ReactiveEffect | undefined
@@ -108,8 +109,10 @@ export function effect(
     // 把 options中的属性全都添加到ReactiveEffect实例上
     extend(_effect, options)
   }
+  if (!options?.lazy) {
+    _effect.run()
+  }
 
-  _effect.run()
   // 绑定 _effect 是因为run()方法中需要this
   const runner: ReactiveEffectRunner = _effect.run.bind(_effect)
   // 把_effect对象添加到runner函数上

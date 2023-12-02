@@ -182,4 +182,14 @@ describe("effect", () => {
     data.bar = "new bar"
     expect(dummy2).toBe("new bar")
   })
+  it("should be called run when lazy is true", () => {
+    const fn = vi.fn()
+
+    const runner = effect(fn, { lazy: true })
+
+    expect(fn).not.toBeCalled()
+
+    runner()
+    expect(fn).toBeCalledTimes(1)
+  })
 })
