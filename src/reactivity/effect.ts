@@ -11,6 +11,9 @@ interface ReactiveEffectOptions {
 }
 
 let activeEffect: ReactiveEffect | undefined
+// effect执行栈
+const effectStack: ReactiveEffect[] = []
+
 // 用于判断activeEffect是否是活跃状态, 依此来确定是否需要收集activeEffect
 let shouldTrack: boolean
 
@@ -43,11 +46,22 @@ class ReactiveEffect {
     activeEffect = this
     shouldTrack = true
 
+    // 把当前activeEffect压入栈中
+    effectStack.push(activeEffect)
+
     // 执行副作用函数fn
     const ret = this._fn()
 
-    // reset
-    shouldTrack = false
+    // 把activeEffect弹出栈
+    effectStack.pop()
+
+    // activeEffect指向栈顶元素
+    activeEffect = effectStack[effectStack.length - 1]
+    // 当activeEffect为undefined时, 说明栈为空了
+    if (!activeEffect) {
+      // reset
+      shouldTrack = false
+    }
 
     return ret
   }

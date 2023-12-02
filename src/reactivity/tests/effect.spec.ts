@@ -142,4 +142,44 @@ describe("effect", () => {
     expect(dummy).toBe("not")
     expect(effectFn).toBeCalledTimes(2)
   })
+  it("nested effect", () => {
+    // 嵌套effect, 在子组件的render函数就是嵌套会父组件的effect中
+    /**
+     * // Bar是Foo的子组件
+     * effect(()=>{
+     *  Foo.render()
+     *  effect(()=>{
+     *    Bar.render()
+     *  })
+     * })
+     */
+
+    const target = { foo: "foo", bar: "bar" }
+    const data = reactive(target)
+    let dummy1
+    let dummy2
+
+    const effectFn2 = () => {
+      // console.log("执行fn2")
+      dummy2 = data.bar
+    }
+    const effectFn1 = () => {
+      // console.log("执行fn1")
+      effect(effectFn2)
+      dummy1 = data.foo
+    }
+
+    effect(effectFn1)
+
+    expect(dummy1).toBe("foo")
+    expect(dummy2).toBe("bar")
+
+    // 更新外层effectFn1中的数据, 会重新执行 effectFn1,
+    // 又间接导致重新执行 effectFn2, 会重新创建一个activeEffect
+    data.foo = "new foo"
+    expect(dummy1).toBe("new foo")
+
+    data.bar = "new bar"
+    expect(dummy2).toBe("new bar")
+  })
 })
