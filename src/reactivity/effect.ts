@@ -1,6 +1,6 @@
 import { extend } from "../shared"
 
-interface ReactiveEffectRunner {
+export interface ReactiveEffectRunner {
   (): any
   effect: ReactiveEffect
 }
@@ -172,6 +172,10 @@ export function track(target: object, key: any) {
  */
 export function trigger(target: object, key: any) {
   const depsMap = targetMap.get(target)
+  if (!depsMap) {
+    return
+  }
+
   const dep = depsMap.get(key)
 
   // 复制一个新的deps, 这样可以避免在run()中调用cleanupEffect时陷入死循环
