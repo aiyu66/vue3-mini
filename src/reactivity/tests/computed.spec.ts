@@ -1,5 +1,5 @@
 import { it, expect, describe, vi } from "vitest"
-import { reactive, computed } from ".."
+import { reactive, computed, effect } from ".."
 
 describe("computed", () => {
   it("happy path", () => {
@@ -52,5 +52,23 @@ describe("computed", () => {
     // 更新响应式数据
     data.count = 2
     expect(doubleCount.value).toBe(4)
+  })
+
+  it("effect computed", () => {
+    const data = reactive({ count: 1 })
+
+    const getter = vi.fn(() => data.count * 1)
+    const cCount = computed(getter)
+
+    let dummy
+    effect(() => {
+      dummy = (cCount.value as number) * 2
+    })
+
+    expect(dummy).toBe(2)
+
+    data.count = 2
+
+    expect(dummy).toBe(4)
   })
 })
