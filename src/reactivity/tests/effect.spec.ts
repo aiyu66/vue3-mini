@@ -245,4 +245,28 @@ describe("effect", () => {
     expect(keys.length).toBe(1)
     expect(data.foo).toBe("new foo")
   })
+  it("should be trigger delete operator", () => {
+    const target = { foo: "foo", bar: "bar" }
+    const data = reactive(target)
+
+    let keys = []
+    effect(() => {
+      keys.length = 0
+      // for...in 操作
+      for (const key in data) {
+        keys.push(key)
+      }
+    })
+
+    expect(keys).toContain("foo")
+    expect(keys).toContain("bar")
+    expect(keys.length).toBe(2)
+
+    // 删除响应式对象上的key, 需要注意的是删除时会影响 ownKeys时操作
+    delete data["bar"]
+
+    expect(keys).not.toContain("bar")
+    expect(keys).toContain("foo")
+    expect(keys.length).toBe(1)
+  })
 })

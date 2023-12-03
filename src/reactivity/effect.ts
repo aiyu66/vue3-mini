@@ -188,8 +188,8 @@ export function trigger(target: object, key: any, type: TriggerType) {
   if (dep?.size) {
     addEffectToNewDeps(dep, effectsToRun)
   }
-  // 只有是添加类型时, 才需要获取ITERATE_KEY的依赖
-  if (type === TriggerType.ADD) {
+  // 当操作类型是添加|删除时, 才需要获取ITERATE_KEY的依赖
+  if (type === TriggerType.ADD || type === TriggerType.DELETE) {
     // 获取与ITERATE_KEY相关的依赖(for...in时会执行ownKeys处理程序)
     const iterateEffects = depsMap.get(ITERATE_KEY)
     iterateEffects && addEffectToNewDeps(iterateEffects, effectsToRun)

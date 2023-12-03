@@ -8,6 +8,9 @@ import {
 } from "./reactive"
 import { extend, isObject } from "../shared"
 
+// 响应式对象的key的类型
+type KEY_TYPE = string | symbol
+
 // 顶层中创建 get/set, 具有缓存作用, 不会被多次创建
 const get = createGetter()
 const set = createSetter()
@@ -21,7 +24,7 @@ const shallowReadonlyGet = createGetter(true, true)
  * @returns getter函数
  */
 function createGetter(isReadonly: boolean = false, isShallow: boolean = false) {
-  return function (target: object, key: string | symbol) {
+  return function (target: object, key: KEY_TYPE) {
     if (key === ReactiveFlags.IS_REACTIVE) {
       return !isReadonly
     } else if (key === ReactiveFlags.IS_READONLY) {
@@ -58,13 +61,12 @@ function createGetter(isReadonly: boolean = false, isShallow: boolean = false) {
 
 // 创建一个setter
 function createSetter() {
-  return function (target: object, key: string | symbol, value: unknown) {
-
+  return function (target: object, key: KEY_TYPE, value: unknown) {
     // 通过 target中是否有key来判断是 新增还是设置属性的操作
     const type = Object.prototype.hasOwnProperty.call(target, key)
       ? TriggerType.SET
       : TriggerType.ADD
-    
+
     const res = Reflect.set(target, key, value)
 
     // 触发依赖
@@ -76,7 +78,7 @@ function createSetter() {
 export const mutableHandlers = {
   get,
   set,
-  has(target: object, key: string | symbol) {
+  has(target: object, key: KEY_TYPE) {
     track(target, key)
     return Reflect.has(target, key)
   },
@@ -84,6 +86,18 @@ export const mutableHandlers = {
     // 使用 for...in 遍历时不知道具体的key,因此用ITERATE_KEY来代替
     track(target, ITERATE_KEY)
     return Reflect.ownKeys(target)
+  },
+  deleteProperty(target: object, key: KEY_TYPE) {
+    const hadKey = Object.prototype.hasOwnProperty.call(target, key)
+
+    const res = Reflect.deleteProperty(target, key)
+
+    // 只有key是target自身上的, 且删除成功后 才触发
+    if (hadKey && res) {
+      trigger(target, key, TriggerType.DELETE)
+    }
+
+    return res
   }
 }
 

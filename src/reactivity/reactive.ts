@@ -17,7 +17,8 @@ export const ITERATE_KEY = Symbol("iterate_key")
 // trigger的类型
 export const enum TriggerType {
   ADD = "add",
-  SET = "set"
+  SET = "set",
+  DELETE = "delete"
 }
 
 // 原始对象Target的结构
