@@ -6,7 +6,7 @@ import {
   ITERATE_KEY,
   TriggerType
 } from "./reactive"
-import { extend, isObject } from "../shared"
+import { extend, isChange, isObject } from "../shared"
 
 // 响应式对象的key的类型
 type KEY_TYPE = string | symbol
@@ -67,11 +67,18 @@ function createSetter() {
       ? TriggerType.SET
       : TriggerType.ADD
 
-    const res = Reflect.set(target, key, value)
+    // 获取旧值
+    const oldValue = target[key]
 
-    // 触发依赖
-    trigger(target, key, type)
-    return res
+    // 当新值和旧值不一样时才更新, 并触发依赖
+    if (isChange(oldValue, value)) {
+      const res = Reflect.set(target, key, value)
+      // 触发依赖
+      trigger(target, key, type)
+      return res
+    } else {
+      return true
+    }
   }
 }
 

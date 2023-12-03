@@ -9,3 +9,13 @@ export const extend = Object.assign
 export function isObject(value: unknown): boolean {
   return value !== null && typeof value === "object"
 }
+
+/**
+ * 判断 oldValue 和 newValue 是否不一样
+ * @param oldValue 旧值
+ * @param newValue 新值
+ * @returns true|false, true: 表示 新值和旧值不一样
+ */
+export function isChange(oldValue: unknown, newValue: unknown): boolean {
+  return !Object.is(oldValue, newValue)
+}

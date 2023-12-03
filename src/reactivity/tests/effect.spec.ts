@@ -269,4 +269,22 @@ describe("effect", () => {
     expect(keys).toContain("foo")
     expect(keys.length).toBe(1)
   })
+
+  it("shoudn't update reactive when value is not change", () => {
+    const target = { count: 1 }
+    const data = reactive(target)
+    let dummy
+
+    const effectFn = vi.fn(() => (dummy = data.count))
+    effect(effectFn)
+
+    expect(effectFn).toBeCalledTimes(1)
+    expect(dummy).toBe(1)
+
+    // 更新响应式对象的count值, 但是值和原来的一样
+    data.count = 1
+
+    // 当新值和旧值一样时, 不应该执行fn
+    expect(effectFn).toBeCalledTimes(1)
+  })
 })
