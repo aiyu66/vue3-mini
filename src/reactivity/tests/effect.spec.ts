@@ -1,5 +1,5 @@
 import { it, expect, describe, vi } from "vitest"
-import { reactive, effect, stop } from ".."
+import { reactive, effect, stop, ReactiveFlags } from ".."
 
 describe("effect", () => {
   it("happy path", () => {
@@ -286,5 +286,35 @@ describe("effect", () => {
 
     // 当新值和旧值一样时, 不应该执行fn
     expect(effectFn).toBeCalledTimes(1)
+  })
+  it.only("effect prototype chain", () => {
+    const obj = { foo: 1 }
+    const proto = { foo: 2 }
+    const child = reactive(obj)
+    const parent = reactive(proto)
+
+    // 设置child的原型为parent(一个响应式对象)
+    Object.setPrototypeOf(child, parent)
+
+    let dummy
+    // child.foo,会先在child上查找有无foo, 没有就从其原型上查找
+    const effectFn = vi.fn(() => (dummy = child.foo))
+    effect(effectFn)
+
+    expect(dummy).toBe(1)
+
+    // 删除child上的foo
+    delete child.foo
+
+    // 从原型上获取foo属性
+    expect(dummy).toBe(2)
+
+    // 修改原型上的foo属性, 也应该更新
+    parent.foo = 3
+    expect(dummy).toBe(3)
+
+    // 在child上添加属性
+    child.foo = 4
+    expect(dummy).toBe(4)
   })
 })

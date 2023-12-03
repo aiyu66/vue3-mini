@@ -6,10 +6,12 @@ import {
 } from "./baseHandlers"
 
 // 响应式对象的判断标记
+
 export const enum ReactiveFlags {
   IS_REACTIVE = "__v_isReactive",
   IS_READONLY = "__v_isReadonly",
-  IS_SHALLOW = "__v_isShallow"
+  IS_SHALLOW = "__v_isShallow",
+  RAW = "raw"
 }
 
 export const ITERATE_KEY = Symbol("iterate_key")

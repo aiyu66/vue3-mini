@@ -31,6 +31,9 @@ function createGetter(isReadonly: boolean = false, isShallow: boolean = false) {
       return isReadonly
     } else if (key === ReactiveFlags.IS_SHALLOW) {
       return isShallow
+    } else if (key === ReactiveFlags.RAW) {
+      // 获取原始对象
+      return target
     }
 
     const value = Reflect.get(target, key)
@@ -61,7 +64,12 @@ function createGetter(isReadonly: boolean = false, isShallow: boolean = false) {
 
 // 创建一个setter
 function createSetter() {
-  return function (target: object, key: KEY_TYPE, value: unknown) {
+  return function (
+    target: object,
+    key: KEY_TYPE,
+    value: unknown,
+    receiver: any
+  ) {
     // 通过 target中是否有key来判断是 新增还是设置属性的操作
     const type = Object.prototype.hasOwnProperty.call(target, key)
       ? TriggerType.SET
@@ -70,12 +78,16 @@ function createSetter() {
     // 获取旧值
     const oldValue = target[key]
 
-    // 当新值和旧值不一样时才更新, 并触发依赖
-    if (isChange(oldValue, value)) {
-      const res = Reflect.set(target, key, value)
-      // 触发依赖
-      trigger(target, key, type)
-      return res
+    // 说明 receiver就是 target的代理对象, 而不是其原型对象
+    // 目的是为了屏蔽由原型引起的更新, 从而避免不必要的操作
+    if (receiver[ReactiveFlags.RAW] === target) {
+      // 当新值和旧值不一样时才更新, 并触发依赖
+      if (isChange(oldValue, value)) {
+        const res = Reflect.set(target, key, value)
+        // 触发依赖
+        trigger(target, key, type)
+        return res
+      }
     } else {
       return true
     }
