@@ -192,4 +192,33 @@ describe("effect", () => {
     runner()
     expect(fn).toBeCalledTimes(1)
   })
+  it("should be track in operator", () => {
+    const target = { foo: "foo" }
+    const data = reactive(target)
+
+    let dummy
+    effect(() => {
+      dummy = "foo" in data
+    })
+
+    expect(dummy).toBe(true)
+  })
+  it.only("should be track forin operator", () => {
+    const target = { foo: "foo" }
+    const data = reactive(target)
+
+    let keys = []
+    effect(() => {
+      // for...in 操作
+      for (const key in data) {
+        keys.push(key)
+      }
+    })
+
+    expect(keys).toContain("foo")
+
+    // 响应式对象中添加一个新的属性
+    data.bar = 'bar'
+    expect(keys).toContain('bar')
+  })
 })

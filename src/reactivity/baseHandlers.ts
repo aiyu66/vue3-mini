@@ -1,5 +1,5 @@
 import { track, trigger } from "./effect"
-import { ReactiveFlags, reactive, readonly } from "./reactive"
+import { ReactiveFlags, reactive, readonly, ITERATE_KEY } from "./reactive"
 import { extend, isObject } from "../shared"
 
 // 顶层中创建 get/set, 具有缓存作用, 不会被多次创建
@@ -8,6 +8,7 @@ const set = createSetter()
 const readonlyGet = createGetter(true)
 const shallowReactiveGet = createGetter(false, true)
 const shallowReadonlyGet = createGetter(true, true)
+
 /**
  * 创建一个getter函数, 通过isReadonly标记是否需要收集依赖
  * @param isReadonly 是否是只读的响应式对象, 默认为false, 也就是可以被set
@@ -62,7 +63,16 @@ function createSetter() {
 
 export const mutableHandlers = {
   get,
-  set
+  set,
+  has(target: object, key: string | symbol) {
+    track(target, key)
+    return Reflect.has(target, key)
+  },
+  ownKeys(target: object) {
+    // 使用 for...in 遍历时不知道具体的key,因此用ITERATE_KEY来代替
+    track(target, ITERATE_KEY)
+    return Reflect.ownKeys(target)
+  }
 }
 
 export const readonlyHandlers = {

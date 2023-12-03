@@ -1,4 +1,5 @@
 import { extend } from "../shared"
+import { ITERATE_KEY } from "./reactive"
 
 export interface ReactiveEffectRunner {
   (): any
@@ -176,18 +177,43 @@ export function trigger(target: object, key: any) {
     return
   }
 
+  // 获取与具体key相关的依赖
   const dep = depsMap.get(key)
+  // 获取与ITERATE_KEY相关的依赖(for...in时会执行ownKeys处理程序)
+  const iterateEffects = depsMap.get(ITERATE_KEY)
 
-  // 复制一个新的deps, 这样可以避免在run()中调用cleanupEffect时陷入死循环
+  // 复制一个依赖集合, 这样可以避免在run()中调用cleanupEffect时陷入死循环
   // 因为 添加/删除 在同一次迭代中
-  const newDeps: any = new Set(dep)
-  for (const effect of newDeps) {
+  const effectsToRun = new Set<ReactiveEffect>()
+
+  if (dep?.size) {
+    addEffectToNewDeps(dep, effectsToRun)
+  }
+  if (iterateEffects?.size) {
+    addEffectToNewDeps(iterateEffects, effectsToRun)
+  }
+
+  for (const effect of effectsToRun) {
     if (effect.scheduler) {
       effect.scheduler()
     } else {
       effect.run()
     }
   }
+}
+
+/**
+ * 把不同key的依赖集合添加到一个新的依赖集合中
+ * @param effects 依赖集合
+ * @param effectsToRun 新的依赖集合
+ * @returns 返回一个新的依赖集合
+ */
+function addEffectToNewDeps(effects, effectsToRun) {
+  effects.forEach((effectFn: ReactiveEffect) => {
+    if (effectFn !== activeEffect) {
+      effectsToRun.add(effectFn)
+    }
+  })
 }
 
 /**

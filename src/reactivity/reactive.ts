@@ -12,6 +12,8 @@ export const enum ReactiveFlags {
   IS_SHALLOW = "__v_isShallow"
 }
 
+export const ITERATE_KEY = Symbol("iterate_key")
+
 // 原始对象Target的结构
 interface Target {
   [ReactiveFlags.IS_REACTIVE]?: boolean
