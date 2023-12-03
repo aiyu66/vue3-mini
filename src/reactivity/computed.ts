@@ -1,4 +1,5 @@
 import { ReactiveEffect, track, trigger } from "./effect"
+import { TriggerType } from "./reactive"
 
 type FunctionStruct = (...args: any[]) => any
 
@@ -16,7 +17,7 @@ class ComputedRefImpl {
       if (!this._dirty) {
         this._dirty = true
         // 响应式数据更新时, 需要被动触发计算属性的依赖更新
-        trigger(this, "value")
+        trigger(this, "value", TriggerType.SET)
       }
     })
   }

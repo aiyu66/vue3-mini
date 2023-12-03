@@ -1,5 +1,11 @@
 import { track, trigger } from "./effect"
-import { ReactiveFlags, reactive, readonly, ITERATE_KEY } from "./reactive"
+import {
+  ReactiveFlags,
+  reactive,
+  readonly,
+  ITERATE_KEY,
+  TriggerType
+} from "./reactive"
 import { extend, isObject } from "../shared"
 
 // 顶层中创建 get/set, 具有缓存作用, 不会被多次创建
@@ -53,10 +59,16 @@ function createGetter(isReadonly: boolean = false, isShallow: boolean = false) {
 // 创建一个setter
 function createSetter() {
   return function (target: object, key: string | symbol, value: unknown) {
+
+    // 通过 target中是否有key来判断是 新增还是设置属性的操作
+    const type = Object.prototype.hasOwnProperty.call(target, key)
+      ? TriggerType.SET
+      : TriggerType.ADD
+    
     const res = Reflect.set(target, key, value)
 
     // 触发依赖
-    trigger(target, key)
+    trigger(target, key, type)
     return res
   }
 }

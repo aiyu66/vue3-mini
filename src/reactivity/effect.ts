@@ -1,5 +1,5 @@
 import { extend } from "../shared"
-import { ITERATE_KEY } from "./reactive"
+import { ITERATE_KEY, TriggerType } from "./reactive"
 
 export interface ReactiveEffectRunner {
   (): any
@@ -170,8 +170,9 @@ export function track(target: object, key: any) {
  * 当响应式对象的属性更新时, 需要把与属性关联的activeEffect都重新调用
  * @param target 响应式对象
  * @param key 响应式对象的属性
+ * @param type 触发set处理程序的操作方式: 更新 | 添加
  */
-export function trigger(target: object, key: any) {
+export function trigger(target: object, key: any, type: TriggerType) {
   const depsMap = targetMap.get(target)
   if (!depsMap) {
     return
@@ -179,8 +180,6 @@ export function trigger(target: object, key: any) {
 
   // 获取与具体key相关的依赖
   const dep = depsMap.get(key)
-  // 获取与ITERATE_KEY相关的依赖(for...in时会执行ownKeys处理程序)
-  const iterateEffects = depsMap.get(ITERATE_KEY)
 
   // 复制一个依赖集合, 这样可以避免在run()中调用cleanupEffect时陷入死循环
   // 因为 添加/删除 在同一次迭代中
@@ -189,8 +188,11 @@ export function trigger(target: object, key: any) {
   if (dep?.size) {
     addEffectToNewDeps(dep, effectsToRun)
   }
-  if (iterateEffects?.size) {
-    addEffectToNewDeps(iterateEffects, effectsToRun)
+  // 只有是添加类型时, 才需要获取ITERATE_KEY的依赖
+  if (type === TriggerType.ADD) {
+    // 获取与ITERATE_KEY相关的依赖(for...in时会执行ownKeys处理程序)
+    const iterateEffects = depsMap.get(ITERATE_KEY)
+    iterateEffects && addEffectToNewDeps(iterateEffects, effectsToRun)
   }
 
   for (const effect of effectsToRun) {

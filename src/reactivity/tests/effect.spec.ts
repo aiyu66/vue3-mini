@@ -203,7 +203,28 @@ describe("effect", () => {
 
     expect(dummy).toBe(true)
   })
-  it.only("should be track forin operator", () => {
+  it("should be track forin operator", () => {
+    const target = { foo: "foo" }
+    const data = reactive(target)
+
+    let keys = []
+    effect(() => {
+      keys.length = 0
+      // for...in 操作
+      for (const key in data) {
+        keys.push(key)
+      }
+    })
+
+    expect(keys).toContain("foo")
+
+    // 响应式对象中添加一个新的属性
+    data.bar = "bar"
+
+    expect(keys).toContain("bar")
+    expect(keys.length).toBe(2)
+  })
+  it("should be set not add operator", () => {
     const target = { foo: "foo" }
     const data = reactive(target)
 
@@ -217,8 +238,11 @@ describe("effect", () => {
 
     expect(keys).toContain("foo")
 
-    // 响应式对象中添加一个新的属性
-    data.bar = 'bar'
-    expect(keys).toContain('bar')
+    // 更新原有的属性
+    data.foo = "new foo"
+
+    expect(keys).toContain("foo")
+    expect(keys.length).toBe(1)
+    expect(data.foo).toBe("new foo")
   })
 })

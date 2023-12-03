@@ -14,6 +14,12 @@ export const enum ReactiveFlags {
 
 export const ITERATE_KEY = Symbol("iterate_key")
 
+// trigger的类型
+export const enum TriggerType {
+  ADD = "add",
+  SET = "set"
+}
+
 // 原始对象Target的结构
 interface Target {
   [ReactiveFlags.IS_REACTIVE]?: boolean
