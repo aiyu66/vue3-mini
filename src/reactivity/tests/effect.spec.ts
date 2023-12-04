@@ -287,7 +287,7 @@ describe("effect", () => {
     // 当新值和旧值一样时, 不应该执行fn
     expect(effectFn).toBeCalledTimes(1)
   })
-  it.only("effect prototype chain", () => {
+  it("effect prototype chain", () => {
     const obj = { foo: 1 }
     const proto = { foo: 2 }
     const child = reactive(obj)
@@ -316,5 +316,29 @@ describe("effect", () => {
     // 在child上添加属性
     child.foo = 4
     expect(dummy).toBe(4)
+  })
+  it("should be track array", () => {
+    const data = reactive(["foo"])
+    let dummy
+    effect(() => {
+      dummy = data[0]
+    })
+
+    expect(dummy).toBe("foo")
+  })
+  it("should be update array when length change", () => {
+    const arr = reactive(["foo"])
+    let len
+    effect(() => {
+      // 访问数组的length属性
+      len = arr.length
+    })
+
+    expect(len).toBe(1)
+
+    // 添加一个元素, 会导致length+1, 副作用函数应该被执行
+    arr[1] = 'bar'
+
+    expect(len).toBe(2)
   })
 })

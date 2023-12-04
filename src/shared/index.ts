@@ -19,3 +19,6 @@ export function isObject(value: unknown): boolean {
 export function isChange(oldValue: unknown, newValue: unknown): boolean {
   return !Object.is(oldValue, newValue)
 }
+
+// 判断是否是数组
+export const isArray = Array.isArray

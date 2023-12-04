@@ -1,4 +1,4 @@
-import { extend } from "../shared"
+import { extend, isArray } from "../shared"
 import { ITERATE_KEY, TriggerType } from "./reactive"
 
 export interface ReactiveEffectRunner {
@@ -187,6 +187,11 @@ export function trigger(target: object, key: any, type: TriggerType) {
 
   if (dep?.size) {
     addEffectToNewDeps(dep, effectsToRun)
+  }
+  // 获取数组相关的依赖集合
+  if (isArray(target) && type === TriggerType.ADD) {
+    const lengthEffects = depsMap.get("length")
+    lengthEffects && addEffectToNewDeps(lengthEffects, effectsToRun)
   }
   // 当操作类型是添加|删除时, 才需要获取ITERATE_KEY的依赖
   if (type === TriggerType.ADD || type === TriggerType.DELETE) {

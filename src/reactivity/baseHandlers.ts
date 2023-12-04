@@ -6,7 +6,7 @@ import {
   ITERATE_KEY,
   TriggerType
 } from "./reactive"
-import { extend, isChange, isObject } from "../shared"
+import { extend, isArray, isChange, isObject } from "../shared"
 
 // 响应式对象的key的类型
 type KEY_TYPE = string | symbol
@@ -62,6 +62,21 @@ function createGetter(isReadonly: boolean = false, isShallow: boolean = false) {
   }
 }
 
+/**
+ * 通过判断target以及key来获取TriggerType, ADD|SET
+ * @param target 原始对象
+ * @param key 对象的属性
+ * @returns 具体的triggerType, 如 设置|添加
+ */
+function getTriggerType(target: object, key: KEY_TYPE) {
+  if (isArray(target)) {
+    return Number(key) < target.length ? TriggerType.SET : TriggerType.ADD
+  } else {
+    return Object.prototype.hasOwnProperty.call(target, key)
+      ? TriggerType.SET
+      : TriggerType.ADD
+  }
+}
 // 创建一个setter
 function createSetter() {
   return function (
@@ -71,26 +86,21 @@ function createSetter() {
     receiver: any
   ) {
     // 通过 target中是否有key来判断是 新增还是设置属性的操作
-    const type = Object.prototype.hasOwnProperty.call(target, key)
-      ? TriggerType.SET
-      : TriggerType.ADD
-
+    const type = getTriggerType(target, key)
     // 获取旧值
     const oldValue = target[key]
 
+    const res = Reflect.set(target, key, value)
     // 说明 receiver就是 target的代理对象, 而不是其原型对象
     // 目的是为了屏蔽由原型引起的更新, 从而避免不必要的操作
     if (receiver[ReactiveFlags.RAW] === target) {
       // 当新值和旧值不一样时才更新, 并触发依赖
       if (isChange(oldValue, value)) {
-        const res = Reflect.set(target, key, value)
         // 触发依赖
         trigger(target, key, type)
-        return res
       }
-    } else {
-      return true
     }
+    return res
   }
 }
 
