@@ -4,7 +4,8 @@ import {
   reactive,
   readonly,
   ITERATE_KEY,
-  TriggerType
+  TriggerType,
+  ARRAY_LENGTH_KEY
 } from "./reactive"
 import { extend, isArray, isChange, isObject } from "../shared"
 
@@ -113,7 +114,8 @@ export const mutableHandlers = {
   },
   ownKeys(target: object) {
     // 使用 for...in 遍历时不知道具体的key,因此用ITERATE_KEY来代替
-    track(target, ITERATE_KEY)
+    const key = isArray(target) ? ARRAY_LENGTH_KEY : ITERATE_KEY
+    track(target, key)
     return Reflect.ownKeys(target)
   },
   deleteProperty(target: object, key: KEY_TYPE) {

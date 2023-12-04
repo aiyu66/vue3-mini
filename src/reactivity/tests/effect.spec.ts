@@ -1,3 +1,4 @@
+import { ARRAY_LENGTH_KEY } from "./../reactive"
 import { it, expect, describe, vi } from "vitest"
 import { reactive, effect, stop, ReactiveFlags } from ".."
 
@@ -337,8 +338,29 @@ describe("effect", () => {
     expect(len).toBe(1)
 
     // 添加一个元素, 会导致length+1, 副作用函数应该被执行
-    arr[1] = 'bar'
+    arr[1] = "bar"
 
     expect(len).toBe(2)
+  })
+  it("should be trigger dep when use for in operator in array", () => {
+    // 在数组上使用 for...in操作时也应该会触发依赖, 尽管不推荐在数组上使用for..in操作
+    const arr = reactive(["foo", "bar"])
+    let keys = []
+    const effecFn = vi.fn(() => {
+      keys.length = 0
+      for (const key in arr) {
+        keys.push(key)
+      }
+    })
+    effect(effecFn)
+
+    expect(keys.length).toBe(2)
+
+    arr[2] = "baz"
+    expect(keys.length).toBe(3)
+
+    // 直接修改数组的长度也会影响for...in操作
+    arr.length = 1
+    expect(keys.length).toBe(1)
   })
 })

@@ -15,6 +15,8 @@ export const enum ReactiveFlags {
 }
 
 export const ITERATE_KEY = Symbol("iterate_key")
+// 数组的length属性
+export const ARRAY_LENGTH_KEY = 'length'
 
 // trigger的类型
 export const enum TriggerType {
