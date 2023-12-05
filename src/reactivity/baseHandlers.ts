@@ -54,7 +54,8 @@ function createGetter(isReadonly: boolean = false, isShallow: boolean = false) {
       return isReadonly ? readonly(value) : reactive(value)
     }
 
-    if (!isReadonly) {
+    // 排除掉key是symbol类型的
+    if (!isReadonly && typeof key !== 'symbol') {
       // 只有isReadonly为false时才需要收集依赖
       track(target, key)
     }

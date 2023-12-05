@@ -363,4 +363,19 @@ describe("effect", () => {
     arr.length = 1
     expect(keys.length).toBe(1)
   })
+  it("should be track dep when use for of operator in array", () => {
+    const arr = reactive(["foo", "bar", "baz"])
+    let values = []
+    effect(() => {
+      values.length = 0
+      // for of 实际上用的是 Symbol.iterator key, 只不过它是一个函数, 
+      // 其内部有使用length, 因此不用修改也能触发依赖
+      for (const item of arr) {
+        values.push(item)
+      }
+    })
+
+    expect(values.length).toBe(3)
+    expect(values).toContain("foo")
+  })
 })
