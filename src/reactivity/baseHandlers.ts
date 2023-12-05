@@ -20,12 +20,39 @@ const shallowReactiveGet = createGetter(false, true)
 const shallowReadonlyGet = createGetter(true, true)
 
 /**
+ * 创建一个替代数组原型上某些方法的对象
+ * @returns 替代数组原型上某些方法的对象
+ */
+function createArrayInstrumentations() {
+  const instrumentations: Record<string, Function> = {}
+
+  // 通过数组元素来查找是否存在的数组方法
+  ;(["includes", "indexOf", "lastIndexOf"] as const).forEach(key => {
+    const originalMethod = Array.prototype[key]
+    instrumentations[key] = function (...args: unknown[]) {
+      // this是代理对象
+      let res = originalMethod.apply(this, args)
+      if (!res || res === -1) {
+        // 如果在代理对象中没找到就去原始对象上查找
+        res = originalMethod.apply(this[ReactiveFlags.RAW], args)
+      }
+      return res
+    }
+  })
+
+  return instrumentations
+}
+
+// 数组重写的方法对象, key是重写过的数组方法的名称
+const arrayInstrumentaions = createArrayInstrumentations()
+
+/**
  * 创建一个getter函数, 通过isReadonly标记是否需要收集依赖
  * @param isReadonly 是否是只读的响应式对象, 默认为false, 也就是可以被set
  * @returns getter函数
  */
 function createGetter(isReadonly: boolean = false, isShallow: boolean = false) {
-  return function (target: object, key: KEY_TYPE) {
+  return function (target: object, key: KEY_TYPE, receiver: any) {
     if (key === ReactiveFlags.IS_REACTIVE) {
       return !isReadonly
     } else if (key === ReactiveFlags.IS_READONLY) {
@@ -37,7 +64,12 @@ function createGetter(isReadonly: boolean = false, isShallow: boolean = false) {
       return target
     }
 
-    const value = Reflect.get(target, key)
+    // 如果target是数组, 且key在arrayInstrumentaions中存在, 那么先获取改写的方法
+    if (isArray(target) && arrayInstrumentaions.hasOwnProperty(key)) {
+      return Reflect.get(arrayInstrumentaions, key, receiver)
+    }
+
+    const value = Reflect.get(target, key, receiver)
 
     // 如果key是symbol类型直接返回value
     if (isSymbol(key)) {

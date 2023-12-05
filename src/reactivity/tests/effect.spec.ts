@@ -368,7 +368,7 @@ describe("effect", () => {
     let values = []
     effect(() => {
       values.length = 0
-      // for of 实际上用的是 Symbol.iterator key, 只不过它是一个函数, 
+      // for of 实际上用的是 Symbol.iterator key, 只不过它是一个函数,
       // 其内部有使用length, 因此不用修改也能触发依赖
       for (const item of arr) {
         values.push(item)
@@ -377,5 +377,31 @@ describe("effect", () => {
 
     expect(values.length).toBe(3)
     expect(values).toContain("foo")
+  })
+
+  it("array includes method", () => {
+    const obj = {}
+    const arr = reactive([obj])
+
+    let ret1
+    let ret2
+    let ret3
+    let ret4
+    effect(() => {
+      // 通过数组元素判断是否存在的方法
+      // includes的调用是arr, 那么其this就是代理对象 arr,
+      // 数组中的obj元素因为是object类型, 因此会转成reactive对象(proxy)
+      // 因此 默认情况下, arr中是不包含obj的, 而是包含obj的proxy对象
+      // 因此需要重写相关的查找方法, 从arr或其原始对象中查找
+      ret1 = arr.includes(arr[0])
+      ret2 = arr.includes(obj)
+      ret3 = arr.indexOf(obj) === 0
+      ret4 = arr.lastIndexOf(obj) === 0
+    })
+
+    expect(ret1).toBe(true)
+    expect(ret2).toBe(true)
+    expect(ret3).toBe(true)
+    expect(ret4).toBe(true)
   })
 })
