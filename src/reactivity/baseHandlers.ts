@@ -7,7 +7,7 @@ import {
   TriggerType,
   ARRAY_LENGTH_KEY
 } from "./reactive"
-import { extend, isArray, isChange, isObject } from "../shared"
+import { extend, isArray, isChange, isObject, isSymbol } from "../shared"
 
 // 响应式对象的key的类型
 type KEY_TYPE = string | symbol
@@ -39,25 +39,24 @@ function createGetter(isReadonly: boolean = false, isShallow: boolean = false) {
 
     const value = Reflect.get(target, key)
 
-    if (isShallow && isReadonly) {
-      // 如果是浅层且readonly的, 那么不需要对value做任何操作, 直接返回即可
+    // 如果key是symbol类型直接返回value
+    if (isSymbol(key)) {
+      return value
+    }
+
+    if (!isReadonly) {
+      // 只有isReadonly为false时才需要收集依赖
+      track(target, key)
+    }
+
+    if (isShallow) {
+      // 如果是浅层的, 那么直接返回value, 这样嵌套的对象发生变化时, 不会触发依赖
       return value
     }
 
     if (isObject(value)) {
-      // value是对象, 需要分别处理
-      if (isShallow) {
-        // 如果是浅层的, 那么直接返回value, 这样嵌套的对象发生变化时, 不会触发依赖
-        return value
-      }
-      // 说明深层的对象也继续使用reactive/readonly转换成响应式对象
+      // value是对象, 那么嵌套的对象也继续使用reactive/readonly转换成响应式对象
       return isReadonly ? readonly(value) : reactive(value)
-    }
-
-    // 排除掉key是symbol类型的
-    if (!isReadonly && typeof key !== 'symbol') {
-      // 只有isReadonly为false时才需要收集依赖
-      track(target, key)
     }
 
     return value

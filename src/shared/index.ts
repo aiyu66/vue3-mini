@@ -11,6 +11,15 @@ export function isObject(value: unknown): boolean {
 }
 
 /**
+ * 判断value是否是symbol类型
+ * @param value 对象
+ * @returns true|false, true: 表示value是symbol类型
+ */
+export function isSymbol(value: unknown): boolean {
+  return value !== null && typeof value === "symbol"
+}
+
+/**
  * 判断 oldValue 和 newValue 是否不一样
  * @param oldValue 旧值
  * @param newValue 新值
