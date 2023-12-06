@@ -404,4 +404,16 @@ describe("effect", () => {
     expect(ret3).toBe(true)
     expect(ret4).toBe(true)
   })
+  it("array push/pop/shift/unshift/splice method", () => {
+    // 这些方法会隐式修改数组的length, 会导致多个独立的副作用函数相互影响
+    const arr = reactive([])
+    effect(() => {
+      arr.push(1)
+    })
+    effect(() => {
+      arr.push(2)
+    })
+
+    expect(arr.length).toBe(2)
+  })
 })

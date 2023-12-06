@@ -46,7 +46,7 @@ export class ReactiveEffect {
     cleanupEffect(this)
     // 设置状态
     activeEffect = this
-    shouldTrack = true
+    enableTracking()
 
     // 把当前activeEffect压入栈中
     effectStack.push(activeEffect)
@@ -62,7 +62,7 @@ export class ReactiveEffect {
     // 当activeEffect为undefined时, 说明栈为空了
     if (!activeEffect) {
       // reset
-      shouldTrack = false
+      pauseTracking()
     }
 
     return ret
@@ -130,6 +130,20 @@ const targetMap = new WeakMap()
  */
 function isTracking(): boolean {
   return shouldTrack && activeEffect !== undefined
+}
+
+/**
+ * 暂停跟踪
+ */
+export function pauseTracking() {
+  shouldTrack = false
+}
+
+/**
+ * 开启跟踪
+ */
+export function enableTracking() {
+  shouldTrack = true
 }
 
 /**

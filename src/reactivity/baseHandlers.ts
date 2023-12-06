@@ -1,4 +1,4 @@
-import { track, trigger } from "./effect"
+import { pauseTracking, enableTracking, track, trigger } from "./effect"
 import {
   ReactiveFlags,
   reactive,
@@ -36,6 +36,18 @@ function createArrayInstrumentations() {
         // 如果在代理对象中没找到就去原始对象上查找
         res = originalMethod.apply(this[ReactiveFlags.RAW], args)
       }
+      return res
+    }
+  })
+  ;(["push", "pop", "shift", "unshift", "splice"] as const).forEach(key => {
+    const originalMethod = Array.prototype[key]
+    instrumentations[key] = function (...args: unknown[]) {
+      // 这些方法会隐式修改数组的length, 从而导致length的依赖被收集,
+      // 因此需要先暂停收集
+      pauseTracking()
+      const res = originalMethod.apply(this, args)
+      // 修改完了以后再修复
+      enableTracking()
       return res
     }
   })
