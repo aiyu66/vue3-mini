@@ -26,4 +26,22 @@ describe("ref", () => {
     expect(effectFn).toBeCalledTimes(2)
     expect(dummy).toBe(4)
   })
+
+  it("should make nested prop ractive", () => {
+    const data = ref({
+      count: 1
+    })
+    let dummy
+    effect(() => (dummy = data.value.count * 2))
+
+    expect(dummy).toBe(2)
+
+    data.value.count = 2
+    expect(dummy).toBe(4)
+
+    data.value = {
+      count: 4
+    }
+    expect(dummy).toBe(8)
+  })
 })

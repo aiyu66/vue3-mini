@@ -170,21 +170,14 @@ export function track(target: object, key: any) {
     dep = new Set()
     depsMap.set(key, dep)
   }
-
-  // dep中没有activeEffect才需要收集起来
-  if (!dep.has(activeEffect)) {
-    // 保存activeEffect
-    dep.add(activeEffect)
-    // 把dep添加到activeEffect的deps中, 方便清除
-    activeEffect.deps.push(dep)
-  }
+  trackEffects(dep)
 }
 
 /**
- * 收集ref声明的响应式对象的依赖
- * @param dep ref的依赖集合
+ * 把activeEffect添加到集合中
+ * @param dep 依赖集合
  */
-export function trackRefValue(dep: Set<ReactiveEffect>) {
+export function trackEffects(dep: Set<ReactiveEffect>) {
   // dep中没有activeEffect才需要收集起来
   if (!dep.has(activeEffect)) {
     // 保存activeEffect
@@ -228,14 +221,14 @@ export function trigger(target: object, key: any, type: TriggerType) {
     iterateEffects && addEffectToNewDeps(iterateEffects, effectsToRun)
   }
 
-  triggerRefValue(effectsToRun)
+  triggerEffects(effectsToRun)
 }
 
 /**
  * 触发依赖, 重新执行run或schduler
  * @param effectsToRun 依赖集合
  */
-export function triggerRefValue(effectsToRun: Set<ReactiveEffect>) {
+export function triggerEffects(effectsToRun: Set<ReactiveEffect>) {
   // 创建一个新的deps, 防止在一次for of中删除又添加导致死循环
   const newDeps = new Set(effectsToRun)
   for (const effect of newDeps) {
