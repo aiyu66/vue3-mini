@@ -128,7 +128,7 @@ const targetMap = new WeakMap()
 /**
  * 用于判断是否是处于收集依赖中
  */
-function isTracking(): boolean {
+export function isTracking(): boolean {
   return shouldTrack && activeEffect !== undefined
 }
 
@@ -181,6 +181,20 @@ export function track(target: object, key: any) {
 }
 
 /**
+ * 收集ref声明的响应式对象的依赖
+ * @param dep ref的依赖集合
+ */
+export function trackRefValue(dep: Set<ReactiveEffect>) {
+  // dep中没有activeEffect才需要收集起来
+  if (!dep.has(activeEffect)) {
+    // 保存activeEffect
+    dep.add(activeEffect)
+    // 把dep添加到activeEffect的deps中, 方便清除
+    activeEffect.deps.push(dep)
+  }
+}
+
+/**
  * 当响应式对象的属性更新时, 需要把与属性关联的activeEffect都重新调用
  * @param target 响应式对象
  * @param key 响应式对象的属性
@@ -214,7 +228,17 @@ export function trigger(target: object, key: any, type: TriggerType) {
     iterateEffects && addEffectToNewDeps(iterateEffects, effectsToRun)
   }
 
-  for (const effect of effectsToRun) {
+  triggerRefValue(effectsToRun)
+}
+
+/**
+ * 触发依赖, 重新执行run或schduler
+ * @param effectsToRun 依赖集合
+ */
+export function triggerRefValue(effectsToRun: Set<ReactiveEffect>) {
+  // 创建一个新的deps, 防止在一次for of中删除又添加导致死循环
+  const newDeps = new Set(effectsToRun)
+  for (const effect of newDeps) {
     if (effect.scheduler) {
       effect.scheduler()
     } else {
