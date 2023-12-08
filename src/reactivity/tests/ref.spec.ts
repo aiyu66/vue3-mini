@@ -1,5 +1,5 @@
 import { it, expect, describe, vi } from "vitest"
-import { effect, ref } from ".."
+import { effect, reactive, ref, isRef, unRef } from ".."
 
 describe("ref", () => {
   it("happy path", () => {
@@ -43,5 +43,19 @@ describe("ref", () => {
       count: 4
     }
     expect(dummy).toBe(8)
+  })
+
+  it("isRef()", () => {
+    const r = ref(1)
+    const data = reactive({ count: 1 })
+    expect(isRef(r)).toBe(true)
+    expect(isRef(1)).toBe(false)
+    expect(isRef(data)).toBe(false)
+  })
+
+  it("unRef()", () => {
+    const r = ref(1)
+    expect(unRef(r)).toBe(1)
+    expect(unRef(2)).toBe(2)
   })
 })
