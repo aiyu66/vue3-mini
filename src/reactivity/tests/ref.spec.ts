@@ -59,7 +59,7 @@ describe("ref", () => {
     expect(unRef(2)).toBe(2)
   })
 
-  it.only("proxyRefs()", () => {
+  it("proxyRefs()", () => {
     // 类似于setup中的返回值, 在template中对于ref对象可以不需要通过.value来获取
     const obj = {
       age: ref(10),

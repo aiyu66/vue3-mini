@@ -1,3 +1,4 @@
+import { isObject } from "../shared"
 import {
   mutableHandlers,
   readonlyHandlers,
@@ -16,7 +17,7 @@ export const enum ReactiveFlags {
 
 export const ITERATE_KEY = Symbol("iterate_key")
 // 数组的length属性
-export const ARRAY_LENGTH_KEY = 'length'
+export const ARRAY_LENGTH_KEY = "length"
 
 // trigger的类型
 export const enum TriggerType {
@@ -128,4 +129,13 @@ export function isReadonly(value: unknown): boolean {
  */
 export function isShallow(value: unknown): boolean {
   return !!(value && (value as Target)[ReactiveFlags.IS_SHALLOW])
+}
+
+/**
+ * 判断value是否是对象, 如果是就转成响应式的,否则返回自身
+ * @param value 普通值或对象
+ * @returns 响应式的对象或普通值
+ */
+export function toReactive(value: any) {
+  return isObject(value) ? reactive(value) : value
 }

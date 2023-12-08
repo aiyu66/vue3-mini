@@ -5,7 +5,7 @@ import {
   trackEffects,
   triggerEffects
 } from "./effect"
-import { reactive } from "./reactive"
+import { toReactive } from "./reactive"
 
 class RefImpl {
   private _value: any
@@ -41,16 +41,19 @@ class RefImpl {
 }
 
 export function ref(value: any) {
-  return new RefImpl(value)
+  return createRef(value)
 }
 
 /**
- * 判断value是否是对象, 如果是就转成响应式的,否则返回自身
- * @param value 普通值或对象
- * @returns 响应式的对象或普通值
+ * 创建一个ref对象, 如果value已是ref对象, 则直接返回
+ * @param value 普通值或原始对象
+ * @returns 返回新的Ref对象或自身
  */
-function toReactive(value) {
-  return isObject(value) ? reactive(value) : value
+function createRef(value: any) {
+  if (isRef(value)) {
+    return value
+  }
+  return new RefImpl(value)
 }
 
 /**
