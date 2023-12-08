@@ -70,3 +70,20 @@ export function isRef(value: any): boolean {
 export function unRef(refObj: any) {
   return isRef(refObj) ? refObj.value : refObj
 }
+
+export function proxyRefs(objectWithRefs: object) {
+  return new Proxy(objectWithRefs, {
+    get(target, key) {
+      return unRef(Reflect.get(target, key))
+    },
+    set(target, key, newVal) {
+      if (isRef(target[key]) && !isRef(newVal)) {
+        // target[key]是一个ref对象, 但是 新的value不是ref对象,因此需要修改value属性
+        return (target[key].value = newVal)
+      } else {
+        // 直接设置, 无论 target[key]/newVal是不是ref
+        return Reflect.set(target, key, newVal)
+      }
+    }
+  })
+}
