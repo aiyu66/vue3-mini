@@ -20,6 +20,24 @@ export function isSymbol(value: unknown): boolean {
 }
 
 /**
+ * 判断value是否是字符串
+ * @param value 字符串
+ * @returns true|false, true:表示value是一个字符串类型
+ */
+export function isString(value: unknown): boolean {
+  return value !== null && typeof value === "string"
+}
+
+/**
+ * 判断value是否是一个空对象
+ * @param value 字符串
+ * @returns true|false, true:表示value是空对象
+ */
+export function isNull(value: undefined): boolean {
+  return value === null
+}
+
+/**
  * 判断 oldValue 和 newValue 是否不一样
  * @param oldValue 旧值
  * @param newValue 新值
