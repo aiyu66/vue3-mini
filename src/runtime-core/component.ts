@@ -33,12 +33,12 @@ function setupStatefulComponent(instance) {
 
   if (setup) {
     const setupResult = setup()
-    handleSeupResult(instance, setupResult)
+    handleSetupResult(instance, setupResult)
   }
 }
 
 // 处理setup()的返回值, 保存到组件实例对象上
-function handleSeupResult(instance, setupResult) {
+function handleSetupResult(instance, setupResult) {
   // TODO function
   if (isObject(setupResult)) {
     instance.setupState = setupResult
