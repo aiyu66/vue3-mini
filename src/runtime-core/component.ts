@@ -1,6 +1,7 @@
 import { isObject } from "../shared"
 
-type COMPONENT_TYPE = {
+// 组件类型
+interface Component {
   vnode: any
   type: any
   setupState?: object | Function
@@ -9,7 +10,7 @@ type COMPONENT_TYPE = {
 
 // 创建组件的实例对象
 export function createComponentInstance(vnode) {
-  const component: COMPONENT_TYPE = {
+  const component: Component = {
     vnode,
     type: vnode.type
   }

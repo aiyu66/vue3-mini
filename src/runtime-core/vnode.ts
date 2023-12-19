@@ -1,9 +1,10 @@
 import { isObject } from "../shared"
 
-type VNODE_TYPE = {
+// VNode类型
+interface VNode {
   type: any
   props?: any
-  children?: string | Array<any>
+  children?: string | any[]
 }
 /**
  * 通过type, props 和 children创建一个vnode
@@ -15,9 +16,9 @@ type VNODE_TYPE = {
 export function createVNode(
   type: any,
   props?: any,
-  children?: string | Array<any>
-) {
-  const vnode: VNODE_TYPE = {
+  children?: string | any[]
+): VNode {
+  const vnode: VNode = {
     type,
     props,
     children
