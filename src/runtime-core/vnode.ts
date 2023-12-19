@@ -1,10 +1,11 @@
-import { isObject } from "../shared"
+import { isObject, isString } from "../shared"
 
 // VNode类型
 interface VNode {
   type: any
   props?: any
   children?: string | any[]
+  el?: HTMLElement | null
 }
 /**
  * 通过type, props 和 children创建一个vnode
@@ -27,10 +28,19 @@ export function createVNode(
 }
 
 /**
- * 判断是否是组件类型的vnode
+ * 判断vnode是否是组件类型
  * @param vnode 虚拟节点
  * @returns true|false, true: 表示vnode是一个组件类型
  */
-export function isComponentVNode(vnode: any): boolean {
-  return isObject(vnode.type)
+export function isComponentVNode(type: any): boolean {
+  return isObject(type)
+}
+
+/**
+ * 判断vnode是否是element类型
+ * @param type VNode的类型
+ * @returns true|false, true: 表示vnode是个element类型
+ */
+export function isElementVNode(type: any): boolean {
+  return isString(type)
 }
