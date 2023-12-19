@@ -1,7 +1,7 @@
 import { isObject, isString } from "../shared"
 
 // VNode类型
-interface VNode {
+export interface VNode {
   type: any
   props?: any
   children?: string | any[]

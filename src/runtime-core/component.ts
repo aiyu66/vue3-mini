@@ -1,7 +1,7 @@
 import { isObject } from "../shared"
 
 // 组件类型
-interface Component {
+export interface Component {
   vnode: any
   type: any
   setupState?: object | Function
