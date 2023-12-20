@@ -1,5 +1,5 @@
 import { isArray, isString } from "../shared"
-import { createComponentInstance, setupComponent, Component } from "./component"
+import { createComponentInstance, setupComponent, ComponentInstance } from "./component"
 import { isComponentVNode, isElementVNode, VNode } from "./vnode"
 
 export function render(vnode: VNode, container) {
@@ -90,7 +90,7 @@ function mountComponent(initialVNode: VNode, container) {
  * @param container 挂载组件的DOM元素
  */
 function setupRenderEffect(
-  instance: Component,
+  instance: ComponentInstance,
   initialVNode: VNode,
   container
 ) {

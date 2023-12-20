@@ -1,9 +1,9 @@
 import { isFunction } from "../shared"
-import { Component } from "./component"
+import { ComponentInstance } from "./component"
 
 // 公共API, 可以在render中通过this直接访问
 const publicPropertiesMap = {
-  $el: (i: Component) => i.vnode.el
+  $el: (i: ComponentInstance) => i.vnode.el
 }
 
 // 组件代理对象的handlers
