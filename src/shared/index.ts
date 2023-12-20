@@ -1,6 +1,9 @@
 // 扩展对象的属性到另一个对象上
 export const extend = Object.assign
 
+// 判断是否是数组
+export const isArray = Array.isArray
+
 /**
  * 判断 value 是否是一个对象类型
  * @param value 对象
@@ -8,6 +11,15 @@ export const extend = Object.assign
  */
 export function isObject(value: unknown): boolean {
   return value !== null && typeof value === "object"
+}
+
+/**
+ * 判断value是否是一个函数
+ * @param value 函数
+ * @returns true|false, true 表示value是一个函数
+ */
+export function isFunction(value: unknown): boolean {
+  return value !== null && typeof value === "function"
 }
 
 /**
@@ -46,6 +58,3 @@ export function isNull(value: undefined): boolean {
 export function isChange(oldValue: unknown, newValue: unknown): boolean {
   return !Object.is(oldValue, newValue)
 }
-
-// 判断是否是数组
-export const isArray = Array.isArray
