@@ -1,6 +1,16 @@
 import { isArray, isString } from "../shared"
-import { createComponentInstance, setupComponent, ComponentInstance } from "./component"
-import { isComponentVNode, isElementVNode, VNode } from "./vnode"
+import {
+  createComponentInstance,
+  setupComponent,
+  ComponentInstance
+} from "./component"
+import {
+  isArrayChildren,
+  isComponentVNode,
+  isElementVNode,
+  isTextChildren,
+  VNode
+} from "./vnode"
 
 export function render(vnode: VNode, container) {
   // 只调用patch方法
@@ -10,10 +20,9 @@ export function render(vnode: VNode, container) {
 // 运行时核心函数
 // 无论是初始化, 更新 还是处理children都会通过patch来完成
 function patch(vnode: VNode, container) {
-  const { type } = vnode
-  if (isComponentVNode(type)) {
+  if (isComponentVNode(vnode)) {
     processComponent(vnode, container)
-  } else if (isElementVNode(type)) {
+  } else if (isElementVNode(vnode)) {
     processElement(vnode, container)
   }
 }
@@ -43,10 +52,10 @@ function mountElement(vnode: VNode, container) {
   }
 
   // 处理children
-  if (isString(children)) {
+  if (isTextChildren(vnode)) {
     el.textContent = children
-  } else if (isArray(children)) {
-    mountChildren(children, el)
+  } else if (isArrayChildren(vnode)) {
+    mountChildren(children as any[], el)
   }
 
   // 把el添加到container中
