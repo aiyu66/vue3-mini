@@ -2,7 +2,7 @@ import { isObject } from "../shared"
 import { PublicInstanceProxyHandlers } from "./componentPublicIntance"
 import { VNode } from "./vnode"
 
-// 组件类型
+// 组件实例的类型
 export interface ComponentInstance {
   vnode: VNode
   type: any
@@ -53,6 +53,7 @@ function setupStatefulComponent(instance: ComponentInstance) {
 function handleSetupResult(instance: ComponentInstance, setupResult: any) {
   // TODO function
   if (isObject(setupResult)) {
+    // setup返回的结果是对象类型, 说明是组件的状态
     instance.setupState = setupResult
   }
 
@@ -64,7 +65,7 @@ function finishComponentSetup(instance: ComponentInstance) {
   const component = instance.type
   const { render } = component
   if (render) {
-    // 把render添加到组件实例对象上
+    // 把render函数添加到组件实例对象上
     instance.render = render
   }
 }

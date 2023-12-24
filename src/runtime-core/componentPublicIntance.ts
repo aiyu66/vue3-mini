@@ -11,7 +11,7 @@ export const PublicInstanceProxyHandlers = {
   get({ _: instance }, key: string | symbol) {
     const { setupState } = instance
     if (key in setupState) {
-      // 判断key是否在setupState中
+      // key在setupState中
       return setupState[key]
     }
     const publicGetter = publicPropertiesMap[key]
