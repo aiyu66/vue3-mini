@@ -7,8 +7,26 @@ export default {
   render() {
     window.self = this
     return h("div", { class: ["demo"] }, [
-      h("p", { id: "p1" }, "hello"),
-      h("p", { id: "p2" }, this.msg)
+      h(
+        "p",
+        {
+          id: "p1",
+          onClick: () => {
+            console.error("click")
+          }
+        },
+        "hello"
+      ),
+      h(
+        "p",
+        {
+          id: "p2",
+          onMousedown: () => {
+            console.error("mousedown")
+          }
+        },
+        this.msg
+      )
     ])
   },
   setup() {

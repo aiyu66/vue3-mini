@@ -43,12 +43,21 @@ function mountElement(vnode: VNode, container) {
   // 通过vnode的type创建出对应的DOM元素, 并和vnode绑定
   const el = (vnode.el = document.createElement(type))
 
+  // 判断props中的key是否以 on 开头, 如果是, 表明这个是事件属性
+  const isEventKey = (key: string): boolean => /^on[A-Z]/.test(key)
   // 处理props
   for (const key in props) {
     const value = props[key]
-    // HTML Attibute 和 DOM property 有些类似, 但不完全一样
-    // vue3中对class, style 常用属性 做了增强
-    el.setAttribute(key, value)
+    if (isEventKey(key)) {
+      // key: onEventName
+      // 注册事件
+      const eventName = key.slice(2).toLowerCase()
+      el.addEventListener(eventName, value)
+    } else {
+      // HTML Attibute 和 DOM property 有些类似, 但不完全一样
+      // vue3中对class, style 常用属性 做了增强
+      el.setAttribute(key, value)
+    }
   }
 
   // 处理children
