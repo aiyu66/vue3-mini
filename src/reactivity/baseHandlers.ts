@@ -7,7 +7,7 @@ import {
   TriggerType,
   ARRAY_LENGTH_KEY
 } from "./reactive"
-import { extend, isArray, isChange, isObject, isSymbol } from "../shared"
+import { extend, isArray, isChange, isObject, isSymbol, warn } from "../shared"
 
 // 响应式对象的key的类型
 type KEY_TYPE = string | symbol
@@ -179,7 +179,7 @@ export const mutableHandlers = {
 export const readonlyHandlers = {
   get: readonlyGet,
   set(target: object, key: string | symbol, value: unknown) {
-    console.warn(`key :${String(key)} 不能被 set, 因为target是只读的:`, target)
+    warn(`key '${String(key)}' 不能被 set, 因为target是只读的:`, target)
     return true
   }
 }

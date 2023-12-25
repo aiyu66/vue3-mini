@@ -58,3 +58,16 @@ export function isNull(value: undefined): boolean {
 export function isChange(oldValue: unknown, newValue: unknown): boolean {
   return !Object.is(oldValue, newValue)
 }
+
+/**
+ * 判断 obj中是否有 key, 如果有返回对应的value, 否则返回 undefined
+ * @param obj 对象
+ * @param key 对象中的key
+ * @returns 返回key对应的value 或 undefined
+ */
+export function hasOwn(obj: object, key: string | symbol): unknown | undefined {
+  return Object.prototype.hasOwnProperty.call(obj, key)
+}
+
+// console.warn 的别名
+export const warn = console.warn

@@ -1,4 +1,4 @@
-import { isObject } from "../shared"
+import { isObject, warn } from "../shared"
 import {
   mutableHandlers,
   readonlyHandlers,
@@ -97,6 +97,12 @@ function createReactiveObject(
   const existProxy = proxyMap.get(target)
   if (existProxy) {
     return existProxy
+  }
+
+  // 判断 target 是否是一个对象, 如果不是直接退出, 因为Proxy只能代理对象, 不能代理普通类型
+  if (!isObject(target)) {
+    warn(`target: ${target}不是一个对象`)
+    return
   }
 
   const proxy = new Proxy(target, handlers)

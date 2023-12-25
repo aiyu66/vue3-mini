@@ -1,4 +1,6 @@
+import { shallowReadonly } from "../reactivity"
 import { isObject } from "../shared"
+import { initProps } from "./componentProps"
 import { PublicInstanceProxyHandlers } from "./componentPublicIntance"
 import { VNode } from "./vnode"
 
@@ -11,6 +13,8 @@ export interface ComponentInstance {
   // 组件的代理对象, 调用render时指定其this为proxy
   proxy?: {}
   ctx?: object
+  // 组件的props
+  props?: object
 }
 
 // 创建组件的实例对象
@@ -28,7 +32,7 @@ export function createComponentInstance(vnode: VNode) {
 // 处理组件的props,slots和setup函数
 export function setupComponent(instance: ComponentInstance) {
   // TODO
-  // initProps()
+  initProps(instance, instance.vnode.props)
   // initSlots()
 
   // 处理有状态的组件
@@ -44,7 +48,8 @@ function setupStatefulComponent(instance: ComponentInstance) {
   instance.proxy = new Proxy(instance.ctx, PublicInstanceProxyHandlers)
 
   if (setup) {
-    const setupResult = setup()
+    // 把props使用shallowReadonly处理变成只读的对象, 传递给setup函数作为第一个参数
+    const setupResult = setup(shallowReadonly(instance.props))
     handleSetupResult(instance, setupResult)
   }
 }
