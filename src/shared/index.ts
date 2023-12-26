@@ -71,3 +71,22 @@ export function hasOwn(obj: object, key: string | symbol): unknown | undefined {
 
 // console.warn 的别名
 export const warn = console.warn
+
+// 把字符串的首字母转为大写
+const captilize = (str: string) =>
+  str.charAt(0).toUpperCase().concat(str.slice(1))
+
+// 使用 'on' 连接转换后的eventName
+export const toHandlerKey = (str: string) => {
+  const eventPrefix = "on"
+  return str ? eventPrefix.concat(captilize(str)) : ""
+}
+
+// 把 - 后边的字符转成大写
+export const camelize = (str: string) => {
+  // _:表示匹配到的字符
+  // c:表示正则中()部分的字符
+  return str.replace(/-(\w)/g, (_, c: string) => {
+    return c ? c.toUpperCase() : ""
+  })
+}

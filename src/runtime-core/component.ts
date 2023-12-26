@@ -1,5 +1,6 @@
 import { shallowReadonly } from "../reactivity"
 import { isObject } from "../shared"
+import { emit } from "./componentEmit"
 import { initProps } from "./componentProps"
 import { PublicInstanceProxyHandlers } from "./componentPublicIntance"
 import { VNode } from "./vnode"
@@ -15,6 +16,8 @@ export interface ComponentInstance {
   ctx?: object
   // 组件的props
   props?: object
+  // 组件的emit方法
+  emit?: Function
 }
 
 // 创建组件的实例对象
@@ -26,6 +29,9 @@ export function createComponentInstance(vnode: VNode) {
 
   // 组件实例对象保存到ctx中
   instance.ctx = { _: instance }
+
+  // 组件实例的emit方法, 用于发射事件到父组件
+  instance.emit = emit.bind(null, instance)
   return instance
 }
 
@@ -48,8 +54,10 @@ function setupStatefulComponent(instance: ComponentInstance) {
   instance.proxy = new Proxy(instance.ctx, PublicInstanceProxyHandlers)
 
   if (setup) {
+    // setupContext对象, 包含 emit, attrs, slots等属性, 可在setup中访问
+    const setupContext = { emit: instance.emit }
     // 把props使用shallowReadonly处理变成只读的对象, 传递给setup函数作为第一个参数
-    const setupResult = setup(shallowReadonly(instance.props))
+    const setupResult = setup(shallowReadonly(instance.props), setupContext)
     handleSetupResult(instance, setupResult)
   }
 }
