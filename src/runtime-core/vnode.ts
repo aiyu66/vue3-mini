@@ -5,10 +5,14 @@ import { ShapeFlags } from "../shared/ShapeFlags"
 export interface VNode {
   type: any
   props?: any
-  children?: string | any[]
+  children?: string | any[] | object
   shapeFlag?: number
   el?: HTMLElement | null
 }
+
+// vnode的children的类型
+export type VNodeChildren = VNode["children"]
+
 /**
  * 通过type, props 和 children创建一个vnode
  * @param type vnode的类型
@@ -19,7 +23,7 @@ export interface VNode {
 export function createVNode(
   type: any,
   props?: any,
-  children?: string | any[]
+  children?: VNodeChildren
 ): VNode {
   const vnode: VNode = {
     type,
@@ -59,7 +63,7 @@ function getVNodeShapeFlag(vnode: VNode) {
  * @returns true|false, true: 表示vnode是一个组件类型
  */
 export function isComponentVNode(vnode: VNode): boolean {
-  return !!(vnode.shapeFlag & ShapeFlags.STATEFUL_COMPONENT)
+  return !!(vnode && vnode.shapeFlag & ShapeFlags.STATEFUL_COMPONENT)
 }
 
 /**
@@ -68,7 +72,7 @@ export function isComponentVNode(vnode: VNode): boolean {
  * @returns true|false, true: 表示vnode是个element类型
  */
 export function isElementVNode(vnode: VNode): boolean {
-  return !!(vnode.shapeFlag & ShapeFlags.ELEMENT)
+  return !!(vnode && vnode.shapeFlag & ShapeFlags.ELEMENT)
 }
 
 /**
@@ -77,7 +81,7 @@ export function isElementVNode(vnode: VNode): boolean {
  * @returns 返回 true | false, true表示children是text类型
  */
 export function isTextChildren(vnode: VNode): boolean {
-  return !!(vnode.shapeFlag & ShapeFlags.TEXT_CHILDREN)
+  return !!(vnode && vnode.shapeFlag & ShapeFlags.TEXT_CHILDREN)
 }
 
 /**
@@ -86,5 +90,5 @@ export function isTextChildren(vnode: VNode): boolean {
  * @returns true | false, true表示children是数组类型
  */
 export function isArrayChildren(vnode: VNode): boolean {
-  return !!(vnode.shapeFlag & ShapeFlags.ARRAY_CHILDREN)
+  return !!(vnode && vnode.shapeFlag & ShapeFlags.ARRAY_CHILDREN)
 }

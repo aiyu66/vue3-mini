@@ -3,7 +3,8 @@ import { isObject } from "../shared"
 import { emit } from "./componentEmit"
 import { initProps } from "./componentProps"
 import { PublicInstanceProxyHandlers } from "./componentPublicIntance"
-import { VNode } from "./vnode"
+import { initSlots } from "./componentSlots"
+import { VNode, VNodeChildren } from "./vnode"
 
 // 组件实例的类型
 export interface ComponentInstance {
@@ -18,6 +19,8 @@ export interface ComponentInstance {
   props?: object
   // 组件的emit方法
   emit?: Function
+  // 组件的slots, 也就是组件vnode的children
+  slots?: VNodeChildren
 }
 
 // 创建组件的实例对象
@@ -37,9 +40,9 @@ export function createComponentInstance(vnode: VNode) {
 
 // 处理组件的props,slots和setup函数
 export function setupComponent(instance: ComponentInstance) {
-  // TODO
-  initProps(instance, instance.vnode.props)
-  // initSlots()
+  const { props, children } = instance.vnode
+  initProps(instance, props)
+  initSlots(instance, children)
 
   // 处理有状态的组件
   setupStatefulComponent(instance)
