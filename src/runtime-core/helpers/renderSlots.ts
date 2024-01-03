@@ -1,5 +1,5 @@
 import { isArray, isFunction, warn } from "../../shared"
-import { VNode, VNodeChildren, createVNode } from "../vnode"
+import { Fragment, VNode, VNodeChildren, createVNode } from "../vnode"
 
 /**
  * 渲染slots
@@ -24,7 +24,7 @@ export function renderSlots(
     } else {
       if (isArray(slots)) {
         // 默认插槽元素
-        return createVNode("div", {}, slots)
+        return createVNode(Fragment, {}, slots)
       }
     }
   } else {

@@ -1,39 +1,66 @@
-import { isArray, isString } from "../shared"
 import {
   createComponentInstance,
   setupComponent,
   ComponentInstance
 } from "./component"
 import {
+  Fragment,
+  Text,
   isArrayChildren,
   isComponentVNode,
   isElementVNode,
   isTextChildren,
-  VNode
+  VNode,
+  VNodeChildren
 } from "./vnode"
 
-export function render(vnode: VNode, container) {
+export function render(vnode: VNode, container: HTMLElement) {
   // 只调用patch方法
   patch(vnode, container)
 }
 
 // 运行时核心函数
 // 无论是初始化, 更新 还是处理children都会通过patch来完成
-function patch(vnode: VNode, container) {
-  if (isComponentVNode(vnode)) {
-    processComponent(vnode, container)
-  } else if (isElementVNode(vnode)) {
-    processElement(vnode, container)
+function patch(vnode: VNode, container: HTMLElement) {
+  const { type } = vnode
+  switch (type) {
+    case Fragment:
+      processFragment(vnode, container)
+      break
+    case Text:
+      processText(vnode, container)
+      break
+    default:
+      if (isComponentVNode(vnode)) {
+        processComponent(vnode, container)
+      } else if (isElementVNode(vnode)) {
+        processElement(vnode, container)
+      }
+      break
   }
 }
 
+// 处理Fragment类型的vnode, 只需要处理其children即可
+function processFragment(vnode: VNode, container: HTMLElement) {
+  const { children } = vnode
+  mountChildren(children, container)
+}
+
+// 处理文本节点
+function processText(vnode: VNode, container: HTMLElement) {
+  const { children } = vnode
+  const text = document.createTextNode(children as string)
+  vnode.el = text as unknown as HTMLElement
+  container.append(text)
+}
+
 // 处理Element类型的vnode
-function processElement(vnode: VNode, container) {
+function processElement(vnode: VNode, container: HTMLElement) {
   mountElement(vnode, container)
 }
 
 // 把vnode创建成真实的DOM元素
-function mountElement(vnode: VNode, container) {
+function mountElement(vnode: VNode, container: HTMLElement) {
   // 特例 -> 通用
   // const el = document.createElement("div")
   // el.textContent = "hello world"
@@ -72,9 +99,9 @@ function mountElement(vnode: VNode, container) {
 }
 
 // 挂载children
-function mountChildren(children: any[], container: any) {
+function mountChildren(children: VNodeChildren, container: HTMLElement) {
   // 数组类型的children也是由多个vnode组成, 因此需要patch
-  children.forEach(vnode => {
+  ;(children as []).forEach(vnode => {
     patch(vnode, container)
   })
 }
@@ -84,7 +111,7 @@ function mountChildren(children: any[], container: any) {
  * @param vnode 组件的vnode
  * @param container 挂载组件的DOM元素
  */
-function processComponent(vnode: VNode, container) {
+function processComponent(vnode: VNode, container: HTMLElement) {
   mountComponent(vnode, container)
 }
 
@@ -93,7 +120,7 @@ function processComponent(vnode: VNode, container) {
  * @param initialVNode 组件的vnode对象
  * @param container 挂载组件的DOM元素
  */
-function mountComponent(initialVNode: VNode, container) {
+function mountComponent(initialVNode: VNode, container: HTMLElement) {
   // 1.创建组件的实例对象
   const instance = createComponentInstance(initialVNode)
   // 2.处理组件的props, slots, setup以及render

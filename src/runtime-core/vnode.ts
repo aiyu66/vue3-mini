@@ -13,6 +13,9 @@ export interface VNode {
 // vnode的children的类型
 export type VNodeChildren = VNode["children"]
 
+export const Fragment = Symbol("Fragment")
+export const Text = Symbol("Text")
+
 /**
  * 通过type, props 和 children创建一个vnode
  * @param type vnode的类型
@@ -41,6 +44,15 @@ export function createVNode(
   }
 
   return vnode
+}
+
+/**
+ * 创建一个文本类型的vnode
+ * @param textContent 文本节点的内容
+ * @returns 返回一个文本类型的vnode
+ */
+export function createTextVNode(textContent: string) {
+  return createVNode(Text, {}, textContent)
 }
 
 /**

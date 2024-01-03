@@ -1,4 +1,4 @@
-import { h } from "../../lib/vue3-mini.esm.js"
+import { h, createTextVNode } from "../../lib/vue3-mini.esm.js"
 import Foo from "./foo.js"
 
 export default {
@@ -15,7 +15,8 @@ export default {
         header: props =>
           h("div", { class: "foo-header" }, [
             h("p", {}, "header-1, age:" + props.age),
-            h("p", {}, "header-2, age:" + props.age)
+            h("p", {}, "header-2, age:" + props.age),
+            createTextVNode("我是一个文本节点")
           ]),
         footer: props => h("p", {}, "footer, age:" + props.age)
       }
