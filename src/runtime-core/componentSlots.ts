@@ -11,12 +11,16 @@ export function initSlots(
   instance: ComponentInstance,
   children: VNodeChildren
 ) {
+  // 如果没有children那么直接返回
+  if (!children) return
+
+  let slots = null
   if (isArray(children)) {
     // 说明是默认的插槽元素
-    instance.slots = isArray(children) ? children : [children]
+    slots = children
   } else if (isObject(children)) {
     // 具名插槽
-    const slots = {}
+    slots = {}
     for (const key in children as object) {
       const value = children[key]
       if (isFunction(value)) {
@@ -24,6 +28,8 @@ export function initSlots(
         slots[key] = (props: object) => value(props)
       }
     }
-    instance.slots = slots
+  } else {
+    slots = [children]
   }
+  instance.slots = slots
 }
