@@ -9,6 +9,8 @@ import {
   isArrayChildren,
   isComponentVNode,
   isElementVNode,
+  isFragmentVNode,
+  isTextVNode,
   isTextChildren,
   VNode,
   VNodeChildren
@@ -22,21 +24,33 @@ export function render(vnode: VNode, container: HTMLElement) {
 // 运行时核心函数
 // 无论是初始化, 更新 还是处理children都会通过patch来完成
 function patch(vnode: VNode, container: HTMLElement) {
-  const { type } = vnode
-  switch (type) {
-    case Fragment:
-      processFragment(vnode, container)
-      break
-    case Text:
-      processText(vnode, container)
-      break
-    default:
-      if (isComponentVNode(vnode)) {
-        processComponent(vnode, container)
-      } else if (isElementVNode(vnode)) {
-        processElement(vnode, container)
-      }
-      break
+  // const { type } = vnode
+  // switch (type) {
+  //   case Fragment:
+  //     processFragment(vnode, container)
+  //     break
+  //   case Text:
+  //     processText(vnode, container)
+  //     break
+  //   default:
+  //     if (isComponentVNode(vnode)) {
+  //       processComponent(vnode, container)
+  //     } else if (isElementVNode(vnode)) {
+  //       processElement(vnode, container)
+  //     }
+  //     break
+  // }
+  if (isFragmentVNode(vnode)) {
+    processFragment(vnode, container)
+  }
+  if (isTextVNode(vnode)) {
+    processText(vnode, container)
+  }
+  if (isComponentVNode(vnode)) {
+    processComponent(vnode, container)
+  }
+  if (isElementVNode(vnode)) {
+    processElement(vnode, container)
   }
 }
 

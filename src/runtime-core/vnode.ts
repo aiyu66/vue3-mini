@@ -88,6 +88,24 @@ export function isElementVNode(vnode: VNode): boolean {
 }
 
 /**
+ * 判断vnode是否是Fragment类型
+ * @param vnode 虚拟节点
+ * @returns true|false, true表示vnode是Fragment类型
+ */
+export function isFragmentVNode(vnode: VNode): boolean {
+  return !!(vnode && vnode.type === Fragment)
+}
+
+/**
+ * 判断vnode是否是Text类型
+ * @param vnode 虚拟节点
+ * @returns true|false, true表示vnode是Text类型
+ */
+export function isTextVNode(vnode: VNode): boolean {
+  return !!(vnode && vnode.type === Text)
+}
+
+/**
  * 判断vnode的children是否是 text 类型
  * @param vnode 虚拟节点
  * @returns 返回 true | false, true表示children是text类型
